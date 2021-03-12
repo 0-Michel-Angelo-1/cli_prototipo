@@ -1,5 +1,6 @@
 #![allow(unused)]
-fn main() {
+fn main() 
+{
     extern crate async_std;
     use async_std::{
         io,
@@ -20,21 +21,29 @@ fn main() {
     type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
     type Sender<T> = mpsc::UnboundedSender<T>;
     type Receiver<T> = mpsc::UnboundedReceiver<T>;
+    
+    #[derive(Debug)]
+    enum Void{}
 
     #[derive(Debug)]
-    enum Event {
-        NewPeer {
+    enum Event 
+    {
+        NewPeer 
+        {
             name: String,
             stream: Arc<TcpStream>,
+            shutdown: Receiver<Void>,
         },
-        Message {
+        Message 
+        {
             from: String,
             to: Vec<String>,
             msg: String,
         },
     }
 
-    async fn broker_loop(mut events: Receiver<Event>) -> Result<()> {
+    async fn broker_loop(mut events: Receiver<Event>) -> Result<()> 
+    {
         let mut writers = Vec::new();
         let mut peers: HashMap<String, Sender<String>> = HashMap::new();
     
@@ -48,7 +57,7 @@ fn main() {
                         }
                     }
                 }
-                Event::NewPeer { name, stream } => match peers.entry(name) {
+                Event::NewPeer { name, stream, shutdown } => match peers.entry(name) {
                     Entry::Occupied(..) => (),
                     Entry::Vacant(entry) => {
                         let (client_sender, client_receiver) = mpsc::unbounded();
